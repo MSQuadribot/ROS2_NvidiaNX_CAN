@@ -22,6 +22,9 @@ setup(
         'console_scripts': [
             'publisher = canbot.can_reader:main',
             'subscriber = canbot.can_listener:main',
+            'keyboard = canbot.can_input:main',
+            'output = canbot.can_output:main',
+            'controller = canbot.can_controller:main',
         ],
     },
 )

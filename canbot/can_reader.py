@@ -25,6 +25,11 @@ def can_reader(canbus):
             return (idlist[msg.arbitration_id], array.array('B',msg.data))
 
 class CanReader(Node):
+    '''
+    The Node is created with a publisher.
+    It takes a canbus as a parameter.
+    The canbus is the bus that the car is connected to.
+    '''
 
     def __init__(self, bus):
         super().__init__('can_reader')
@@ -40,6 +45,10 @@ class CanReader(Node):
         self.get_logger().info("Publishing :" + str(msg.arbitration_id) + " " + ", ".join(str(int(hex(b),16)) for b in msg.data))
 
 def main():
+    '''
+    This function is called when the user launch the executable file.
+    Ros2 will directly start the program here, according to the setup file.
+    '''
 
     rclpy.init()
 
@@ -53,7 +62,6 @@ def main():
         pass
 
     bus.shutdown()
-    bus.close()
     print("done")
 
     # Destroy the node explicitly

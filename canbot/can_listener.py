@@ -3,6 +3,11 @@ from rclpy.node import Node
 from interfaces.msg import BusCan
 
 class CanListener(Node):
+    '''
+    This node serves only one simple purpose.
+    It will listen to the canbus and print out the data.
+    The Node allows the user to easely read the data.
+    '''
 
     def __init__(self):
         super().__init__('can_listener')
@@ -16,6 +21,10 @@ class CanListener(Node):
             self.get_logger().info('Subscribing: ' + str(msg.arbitration_id) + ', '.join(str(int(hex(b),16)) for b in msg.data))
 
 def main():
+    '''
+    This function is called when the user launch the executable file.
+    Ros2 will directly start the program here, according to the setup file.
+    '''
 
     rclpy.init()
 

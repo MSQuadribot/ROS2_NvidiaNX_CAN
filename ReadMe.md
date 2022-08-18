@@ -14,7 +14,7 @@ This process can take some times (on my machine it could take up to 15s to run)
 Remember that if the built was already completed, there is no need to run it again
 But, be also aware that you have to rebuild the package each time you make a modification
 
-### How to run the package :
+## How to run the package :
 
 For that, you will need to open a new terminal and go to the following directory : /Desktop/dev_ws
 If you just built the package, the terminal will need to be different as this can cause issues otherwise
@@ -35,6 +35,14 @@ publisher will provide the information directly from the CAN, according that the
 The data are retrieved directly from the CAN device. And then are sent in the form of a ROS2 message.
 
 subscriber is set to get the data from the publisher.
+
+keyboard is set to get the data from the keyboard. Thus by using 'WASD' keys, you can control the car.
+Speed, steering, and braking are controlled by the keyboard and are adjusted dynamically by the user.
+
+controller use this keyboard input and send it to the car using the CAN Bus. 
+The bus is updated every 20ms even if the speed and other element remain unchanged.
+Indeed, the car natively supports an "alive" counter that is incremented every 20ms.
+If the counter is not incremented, the car will stop.
 
 ## Important note
 
