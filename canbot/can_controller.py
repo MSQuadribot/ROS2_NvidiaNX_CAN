@@ -12,7 +12,7 @@ class CanController(Node):
     The publisher is responsible for sending the CAN messages to the car.
     '''
 
-    def __init__(self, bus):
+    def __init__(self, bus, mode):
         '''
         This will define the Node with both a publisher and a subscriber.
         The publisher does not send any ROS messages.
@@ -28,7 +28,7 @@ class CanController(Node):
         self.bus = bus
 
         # The data that will be sent to the car are defined inside the class for the publisher
-        self.mode = 8       # 8 is external mode
+        self.mode = mode       # 8 is external mode
         self.direction = 2  # 0 = forward, 1 = backward, 2 = neutral
         self.speed = 0      # Speed set to 0 km/h
         self.steering = 0   # No steering
@@ -56,7 +56,7 @@ class CanController(Node):
         '''
 
         if self.brake > 0:
-            message = can.Message(arbitration_id=0x200, is_extended_id=False,data=[8, 0, 0, 0, 0, 0, self.brake, self.alive])
+            message = can.Message(arbitration_id=0x200, is_extended_id=False,data=[self.mode, 0, 0, 0, 0, 0, self.brake, self.alive])
             self.bus.send(message, timeout=0)
         
         else:
@@ -93,9 +93,11 @@ def main():
 
     rclpy.init()
 
+    mode = int(input("What is the required mode for the car?"))
+
     bus = can.ThreadSafeBus(interface='socketcan', channel="vcan0",timeout=0.01)
 
-    can_controller = CanController(bus)
+    can_controller = CanController(bus, mode)
 
     try:
         rclpy.spin(can_controller)

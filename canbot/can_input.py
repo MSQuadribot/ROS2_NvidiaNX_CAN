@@ -47,7 +47,7 @@ def keyboard_listener(direction,speed, steering,brake):
 
 class CanInput(Node):
 
-    def __init__(self):
+    def __init__(self, mode):
         '''
         This will define the Node with both a publisher.
         The goal is to send the data input from the keyboard to the controller Node.
