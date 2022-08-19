@@ -31,7 +31,7 @@ $ ros2 run canbot {$processname}
 
 There are currently five available process :
 
-publisher will provide the information directly from the CAN, according that the emitted data are conform.
+reader will provide the information directly from the CAN, according that the emitted data are conform.
 The data are retrieved directly from the CAN device. And then are sent in the form of a ROS2 message.
 
 subscriber is set to get the data from the publisher.
@@ -43,6 +43,21 @@ controller use this keyboard input and send it to the car using the CAN Bus.
 The bus is updated every 20ms even if the speed and other element remain unchanged.
 Indeed, the car natively supports an "alive" counter that is incremented every 20ms.
 If the counter is not incremented, the car will stop.
+
+variables will use the can data provided by the reader and will send it to get the car variables.
+This include speed, steering angle, battery status, and more.
+This node was designed with the precise requirement of the CAN bus provided by a specific car.
+
+## What are the topics provided by the package ?
+
+The main topics is can_data, it is provided by the Node can_reader.
+This topic is used to send the data from the CAN device to the other nodes.
+The message is a BusCan custom message. It reproduce the CAN frame structure in a user-friendly way.
+
+Another topic is provided by the Node can_input. 
+This topic is used to send the data from the keyboard to the other nodes.
+This idea was to use this topic to remotely control the car.
+
 
 ## Important note
 
@@ -61,3 +76,13 @@ $ candump can0
 
 What is more, the package needs to use an home made ROS2 message type to send the data.
 It is located in another package : interfaces and it is names BusCan.msg
+
+Sometimes, the use of a virtual device can be more valuable.
+For this, the user need to create a new virtual device and then use it.
+
+$ sudo modprobe vcan
+$ sudo ip link add dev vcan0 type vcan
+$ sudo ip link set up vcan0
+
+Then the user can use the terminal to access the virtual CAN device.
+In case the user is willing to use the virtual device with this package, he will need to change the device name in the code.
