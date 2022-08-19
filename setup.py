@@ -20,11 +20,13 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'publisher = canbot.can_reader:main',
+            'reader = canbot.can_reader:main',
             'subscriber = canbot.can_listener:main',
             'keyboard = canbot.can_input:main',
             'output = canbot.can_output:main',
             'controller = canbot.can_controller:main',
+            'mode = canbot.can_mode:main',
+            'variable = canbot.can_variable:main',
         ],
     },
 )
