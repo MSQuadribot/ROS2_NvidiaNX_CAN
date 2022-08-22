@@ -67,11 +67,13 @@ Furthermore, the CAN device is not activated by default.
 You will need to activate it in order to be able to use it. This requires root privileges.
 
 $ sudo ip lint set can0 type can bitrate 500000
+
 $ sudo ip link set up can0
 
 Then the user can use the terminal to access the CAN device.
 
 $ cansend can0 300#0FF0FF
+
 $ candump can0
 
 What is more, the package needs to use an home made ROS2 message type to send the data.
@@ -81,7 +83,9 @@ Sometimes, the use of a virtual device can be more valuable.
 For this, the user need to create a new virtual device and then use it.
 
 $ sudo modprobe vcan
+
 $ sudo ip link add dev vcan0 type vcan
+
 $ sudo ip link set up vcan0
 
 Then the user can use the terminal to access the virtual CAN device.
