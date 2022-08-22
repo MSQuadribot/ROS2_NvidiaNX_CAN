@@ -25,8 +25,8 @@ setup(
             'keyboard = canbot.can_input:main',
             'output = canbot.can_output:main',
             'controller = canbot.can_controller:main',
-            'mode = canbot.can_mode:main',
             'variables = canbot.can_variables:main',
+            'joystick = canbot.can_joystick:main',
         ],
     },
 )

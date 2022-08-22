@@ -93,9 +93,9 @@ def main():
 
     rclpy.init()
 
-    bus = can.ThreadSafeBus(interface='socketcan', channel="can0",timeout=0.01)
+    bus = can.ThreadSafeBus(interface='socketcan', channel="vcan0",timeout=0.01)
 
-    can_controller = CanController(bus, mode)
+    can_controller = CanController(bus, 8)
 
     try:
         rclpy.spin(can_controller)
