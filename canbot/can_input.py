@@ -14,25 +14,37 @@ def keyboard_listener(direction,speed, steering,brake):
     key = keyboard.read_key()
     if key == "w" and direction != 0 and (direction != 1 or speed ==0):
         direction = 0
-        speed = 1
-    if key == "w" and direction == 0 and speed < 19:
-        speed +=1
+        speed = 5
+    if key == "w" and direction == 0 and speed < 190:
+        speed +=5
     if key == "s" and direction ==0 and speed > 0:
-        speed -=1
+        speed -=5
     
     if key == "s" and direction != 1 and (direction != 0 or speed ==0):
         direction = 1
-        speed = 1
-    if key == "s" and direction == 1 and speed < 19:
-        speed +=1
+        speed = 5
+    if key == "s" and direction == 1 and speed < 190:
+        speed +=5
     if key == "w" and direction == 1 and speed > 0:
-        speed -=1
+        speed -=5
     
-    if key == "a" and steering > -37:
-        steering -=1
+    if key == "a" and steering > -37 and steering < 37:
+        steering -=5
+    elif key == "a" and steering == 37:
+        steering = 35
+    elif steering <= -37:
+        steering = -37
     
-    if key == "d" and steering < 37:
-        steering +=1
+    
+    if key == "d" and steering < 37 and steering > -37:
+        steering +=5
+    elif key == "d" and steering == -37:
+        steering = -35
+    elif steering >= 37:
+        steering = 37
+
+    if key == "c":
+        steering = 0
 
     if key == "x":
         direction = 2
@@ -60,7 +72,7 @@ class CanInput(Node):
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
         # The data that will be sent to the car are defined inside the class for the publisher
-        self.mode = 8       # 8 is external mode
+        self.mode = mode       # 8 is external mode
         self.direction = 2  # 0 = forward, 1 = backward, 2 = neutral
         self.speed = 0      # Speed set to 0 km/h
         self.steering = 0   # No steering
@@ -92,7 +104,9 @@ def main():
 
     rclpy.init()
 
-    can_input = CanInput()
+    mode = int(input("What is the required mode for the car?"))
+
+    can_input = CanInput(mode)
 
     try:
         rclpy.spin(can_input)

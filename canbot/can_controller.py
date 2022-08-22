@@ -93,9 +93,7 @@ def main():
 
     rclpy.init()
 
-    mode = int(input("What is the required mode for the car?"))
-
-    bus = can.ThreadSafeBus(interface='socketcan', channel="vcan0",timeout=0.01)
+    bus = can.ThreadSafeBus(interface='socketcan', channel="can0",timeout=0.01)
 
     can_controller = CanController(bus, mode)
 

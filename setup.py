@@ -26,7 +26,7 @@ setup(
             'output = canbot.can_output:main',
             'controller = canbot.can_controller:main',
             'mode = canbot.can_mode:main',
-            'variable = canbot.can_variable:main',
+            'variables = canbot.can_variables:main',
         ],
     },
 )

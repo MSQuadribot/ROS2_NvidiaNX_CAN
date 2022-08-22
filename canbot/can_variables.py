@@ -1,14 +1,17 @@
-from tkinter.messagebox import NO
+
+from re import sub
 import rclpy
 
 from interfaces.msg import BusCan
 
 from rclpy.node import Node
 
+import subprocess
+
 class GetAngle(Node):
 
     def __init__(self):
-            super().__init__('get_angle')
+            super().__init__('get_variables')
             self.subscription = self.create_subscription(BusCan, 'can_data', self.listener_callback, 10)
             self.subscription # prevent unused variable warning
 
@@ -18,6 +21,8 @@ class GetAngle(Node):
             self.error = None
         
     def listener_callback(self, msg):
+
+        subprocess.call("clear")
 
         if msg.arbitration_id == 301:
             self.speed = msg.data[2]
@@ -45,15 +50,17 @@ class GetAngle(Node):
 
             self.battery = int('0x' + bat_2 + bat_1,16)
         
-        if msg.arb == 304:
+        if msg.arbitration_id == 304:
             for i in msg.data:
                 if i != 0:
                     self.error = i
                     break
-        
-        self.get_logger().info('Speed' + str(self.speed//10) + 'km/h')
-        self.get_logger().info('Angle: ' + str(self.angle//10) + '°')
-        self.get_logger().info('Battery: ' + str(self.battery//10) + '%')
+        if self.speed != None:
+            self.get_logger().info('Speed: ' + str(self.speed//10) + 'km/h')
+        if self.angle != None:
+            self.get_logger().info('Angle: ' + str(self.angle//10) + '°')
+        if self.battery != None:
+            self.get_logger().info('Battery: ' + str(self.battery//10) + '%')
         self.get_logger().info('Error: ' + str(self.error))
         
 def main():
