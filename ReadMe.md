@@ -39,6 +39,10 @@ subscriber is set to get the data from the publisher.
 keyboard is set to get the data from the keyboard. Thus by using 'WASD' keys, you can control the car.
 Speed, steering, and braking are controlled by the keyboard and are adjusted dynamically by the user.
 
+joystick is also used to input command to the controller.
+For this, the node is focused on using an easy to use joystick.
+Thus it is both easy and conveniant for the user to control the car. 
+
 controller use this keyboard input and send it to the car using the CAN Bus. 
 The bus is updated every 20ms even if the speed and other element remain unchanged.
 Indeed, the car natively supports an "alive" counter that is incremented every 20ms.
@@ -56,6 +60,7 @@ The message is a BusCan custom message. It reproduce the CAN frame structure in 
 
 Another topic is provided by the Node can_input. 
 This topic is used to send the data from the keyboard to the other nodes.
+It is also used by the joystick in order to move similar data from a different input device.
 This idea was to use this topic to remotely control the car.
 
 
