@@ -1,47 +1,28 @@
-import pygame
+import socket
+import pickle
 import time
 import rclpy
 
 from rclpy.node import Node
 from interfaces.msg import CarControl
 
-def remap(x, in_min, in_max, out_min, out_max):
-    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
-def joystick_input(joystick, direction,speed, steering, brake):
+def remote_input(server, direction,speed, steering, brake):
 
-    brake = 0
+    msg = server.recv(1024)
+    res = pickle.loads(msg)
 
-    pygame.event.pump()
-    y = joystick.get_axis(0)
-    x = joystick.get_axis(1)
-
-    if joystick.get_button(10):
-        brake = 1
-    if joystick.get_button(11):
-        brake = 2
-    
-    if y < 0.05 and y > -0.05:
-        y = 0
-    
-    if x < 0.05 and x > -0.05:
-        x = 0
-    
-    speed = remap(-x,-1,1,-191,190)
-    steering = remap(y,-1,1,-37,38)
-
-    if speed < 0:
-        direction = 1
-        speed = -speed
-    else :
-        direction = 0
+    direction = res[1]
+    speed = res[2]
+    steering = res[3]
+    brake = res[4]
 
     return(direction,int(speed),int(steering),brake)
 
 
 class CanInput(Node):
 
-    def __init__(self, mode, joystick):
+    def __init__(self, mode, server):
         '''
         This will define the Node with both a publisher.
         The goal is to send the data input from the keyboard to the controller Node.
@@ -52,7 +33,7 @@ class CanInput(Node):
         self.publisher = self.create_publisher(CarControl, 'keyboard_input', 10)
         timer_period = 0.01  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
-        self.joystick = joystick
+        self.server = server
 
         # The data that will be sent to the car are defined inside the class for the publisher
         self.mode = mode       # 8 is external mode
@@ -67,11 +48,11 @@ class CanInput(Node):
         The data are then updated and send using a specific message type.
         '''
 
-        self.direction,self.speed,self.steering,self.brake = joystick_input(self.joystick, self.direction,self.speed,self.steering,self.brake)
+        self.direction,self.speed,self.steering,self.brake = remote_input(self.server, self.direction,self.speed,self.steering,self.brake)
         msg = CarControl()
         msg.mode = self.mode
         msg.direction = self.direction
-        msg.speed = 0 #self.speed
+        msg.speed = self.speed
         msg.steering = self.steering
         msg.brake = self.brake
         self.publisher.publish(msg)
@@ -89,19 +70,21 @@ def main():
 
     mode = int(input("What is the required mode for the car?"))
 
-    pygame.init()
+    PORT = 4852
+    ADDRESS = "128.18.93.43"
 
-    pygame.joystick.init()
+    host = socket.gethostbyname(ADDRESS)
+    print(host)
 
-    joystick_count = pygame.joystick.get_count()
-    if joystick_count == 0:
-        print("No joysticks found.")
+    my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    joystick = pygame.joystick.Joystick(0)
+    my_socket.bind(('', PORT))
 
-    joystick.init()
+    my_socket.listen()
 
-    can_input = CanInput(mode, joystick)
+    client, client_address = my_socket.accept()
+
+    can_input = CanInput(mode, client)
 
     try:
         rclpy.spin(can_input)

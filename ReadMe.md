@@ -71,7 +71,7 @@ Furthermore, the CAN device is not activated by default.
 
 You will need to activate it in order to be able to use it. This requires root privileges.
 
-$ sudo ip lint set can0 type can bitrate 500000
+$ sudo ip link set can0 type can bitrate 500000
 
 $ sudo ip link set up can0
 

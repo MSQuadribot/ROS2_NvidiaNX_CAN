@@ -17,12 +17,16 @@ class GetAngle(Node):
 
             self.angle = None
             self.speed = None
+            self.brake = None
             self.battery = None
             self.error = None
         
     def listener_callback(self, msg):
 
         subprocess.call("clear")
+
+        if msg.arbitration_id == 300:
+            self.brake = msg.data[2]
 
         if msg.arbitration_id == 301:
             self.speed = msg.data[2]
@@ -55,8 +59,11 @@ class GetAngle(Node):
                 if i != 0:
                     self.error = i
                     break
+
         if self.speed != None:
             self.get_logger().info('Speed: ' + str(self.speed//10) + 'km/h')
+        if self.brake != None:
+            self.get_logger().info('Brake :' + str(self.brake))
         if self.angle != None:
             self.get_logger().info('Angle: ' + str(self.angle//10) + '°')
         if self.battery != None:

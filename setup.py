@@ -27,6 +27,7 @@ setup(
             'controller = canbot.can_controller:main',
             'variables = canbot.can_variables:main',
             'joystick = canbot.can_joystick:main',
+            'remote = canbot.can_remote:main'
         ],
     },
 )
