@@ -6,24 +6,24 @@ More precisely, the goal is to create a link betweenthe Nvidia NX Xavier and an 
 ## How to build the package :
 
 First, open a new terminal and go to the following directory : /Desktop/dev_ws
-There you will be able to build all the packages that are in the src subdirectory
+There you will be able to build all the packages that are in the src subdirectory.
 
 $ colcon build
 
-This process can take some times (on my machine it could take up to 15s to run)
-Remember that if the built was already completed, there is no need to run it again
-But, be also aware that you have to rebuild the package each time you make a modification
+This process can take some times (on my machine it could take up to 15s to run).
+Remember that if the built was already completed, there is no need to run it again.
+But, be also aware that you have to rebuild the package each time you make a modification.
 
 ## How to run the package :
 
 For that, you will need to open a new terminal and go to the following directory : /Desktop/dev_ws
-If you just built the package, the terminal will need to be different as this can cause issues otherwise
+If you just built the package, the terminal will need to be different as this can cause issues otherwise.
 
-in order to launch a process for this package you will need to source your workspace
+in order to launch a process for this package you will need to source your workspace.
 
 $ . install/setup.bash
 
-Once done, you can process with using this wonderful package
+Once done, you can process with using this wonderful package.
 
 $ ros2 run canbot {$processname}
 

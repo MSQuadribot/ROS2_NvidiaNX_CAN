@@ -1,123 +1,168 @@
-import keyboard
+import socket
+from tkinter.tix import Tree
+import pygame
 import time
-import rclpy
+import pickle
 
-from rclpy.node import Node
-from interfaces.msg import CarControl
+def remap(x, in_min, in_max, out_min, out_max):
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
-def keyboard_listener(direction,speed, steering,brake):
+def joystick_input(joystick, direction,speed, steering, brake, current_y, current_mode):
     '''
-    This function will listen the keyboard input and update the variables.
-    Thus the user can control the variable of the car.
+    This function retrieves data from the joystick and convert them.
+    It will update the current motion data for the vehicle such as speed, steering brake mode...
+    In order to make the driving smoother, the steering angle will take speed into account
+
     '''
 
-    key = keyboard.read_key()
-    if key == "w" and direction != 0 and (direction != 1 or speed ==0):
-        direction = 0
-        speed = 5
-    if key == "w" and direction == 0 and speed < 190:
-        speed +=5
-    if key == "s" and direction ==0 and speed > 0:
-        speed -=5
-    
-    if key == "s" and direction != 1 and (direction != 0 or speed ==0):
-        direction = 1
-        speed = 5
-    if key == "s" and direction == 1 and speed < 190:
-        speed +=5
-    if key == "w" and direction == 1 and speed > 0:
-        speed -=5
-    
-    if key == "a" and steering > -37 and steering < 37:
-        steering -=5
-    elif key == "a" and steering == 37:
-        steering = 35
-    elif steering <= -37:
-        steering = -37
-    
-    
-    if key == "d" and steering < 37 and steering > -37:
-        steering +=5
-    elif key == "d" and steering == -37:
-        steering = -35
-    elif steering >= 37:
-        steering = 37
+    # Define the reachable angle value for different modes
+    mode_1 = [0,7,16,25,37,1]
+    mode_2 = [0,6,13,20,30,2]
+    mode_3 = [0,5,10,17,25,3]
 
-    if key == "c":
-        steering = 0
+    brake = 0
 
-    if key == "x":
-        direction = 2
-        speed = 0
-        steering = 0
+    go = True # variable for debouncing
+
+    pygame.event.pump()
+
+    y = joystick.get_axis(0) # steering
+    x = joystick.get_axis(1) # speed
+
+    # update speed value
+    speed = remap(-x,-1,1,-191,190)
+
+    # choose a mode that will adjust angle according to speed
+    sp = abs(speed)
+    if sp <= 65 :
+        mode = mode_1
+    elif sp > 65 and sp <= 130:
+        mode = mode_2
+    elif sp > 130:
+        mode = mode_3
+
+    # Debounce
+    if current_y < y + 0.03 and current_y > y - 0.03 and current_mode == mode[5]:
+        go = False
+    else:
+        current_y = y
+
+    # Update brake value
+    if joystick.get_button(10):
         brake = 1
+    if joystick.get_button(11):
+        brake = 2
     
-    if key != "x":
-        brake = 0
-
-    return(direction,speed,steering,brake)
-
-class CanInput(Node):
-
-    def __init__(self, mode):
-        '''
-        This will define the Node with both a publisher.
-        The goal is to send the data input from the keyboard to the controller Node.
-        It has to send the data as fast as possible
-        '''
-
-        super().__init__('can_input')
-        self.publisher = self.create_publisher(CarControl, 'keyboard_input', 10)
-        timer_period = 0.01  # seconds
-        self.timer = self.create_timer(timer_period, self.timer_callback)
-
-        # The data that will be sent to the car are defined inside the class for the publisher
-        self.mode = mode       # 8 is external mode
-        self.direction = 2  # 0 = forward, 1 = backward, 2 = neutral
-        self.speed = 0      # Speed set to 0 km/h
-        self.steering = 0   # No steering
-        self.brake = 0      # No brake
+    if y < 0.05 and y > -0.05:
+        y = 0
     
-    def timer_callback(self):
-        '''
-        This callback take the keyboard input into account.
-        The data are then updated and send using a specific message type.
-        '''
+    if x < 0.05 and x > -0.05:
+        x = 0
 
-        self.direction,self.speed,self.steering,self.brake = keyboard_listener(self.direction,self.speed,self.steering,self.brake)
-        msg = CarControl()
-        msg.mode = self.mode
-        msg.direction = self.direction
-        msg.speed = self.speed
-        msg.steering = self.steering
-        msg.brake = self.brake
-        self.publisher.publish(msg)
-        self.get_logger().info("Publishing :" + str(msg.mode) + " " + str(msg.direction) + " " + str(msg.speed) + " " + str(msg.steering) + " " + str(msg.brake))
-        time.sleep(0.02)
+    # Update steering value
+    if go == True :
+        if y < 0.05 and y > -0.05:
+            steering = 0
+        
+        elif y < 0.25 and y >= 0.05 :
+            steering = remap(y*y, 0.05, 0.25, mode[0], mode[1])
+        
+        elif y < 0.5 and y >= 0.25:
+            steering = remap(y,0.25,0.5, mode[1], mode[2])
+        
+        elif y < 0.75 and y >= 0.5 :
+            steering = remap(y,0.5,0.75,mode[2],mode[3])
+        
+        elif y <= 1 and y >= .75 :
+            steering = remap(y,0.75,1, mode[3],mode[4])
 
+        elif y <= -0.05 and y > -0.25:
+            steering = remap(y, -0.05, -0.25, mode[0], -mode[1])
+        
+        elif y <= -0.25 and y > -0.5:
+            steering = remap(y, -0.25, -0.5, -mode[1], -mode[2])
+        
+        elif y <= -0.5 and y > -0.75:
+            steering = remap(y,-0.5,-0.75,-mode[2],-mode[3])
+        
+        elif y <= -0.75 and y >= -1:
+            steering = remap(y, -0.75,-1,-mode[3],-mode[4])
+
+    # Update direction value according to speed value    
+    if speed < -1:
+        direction = 1
+        speed = -speed
+    else :
+        direction = 0
+    
+    current_mode = mode[5]
+
+    return(direction,int(speed),int(steering),brake, current_y, current_mode)
+
+class variables :
+    '''
+    Define a class that will take vehicle's motion variables.
+    Those variables are then updated according to joystick's position.
+    '''
+
+    def __init__(self):
+        self.mode = 0
+        self.direction = 0
+        self.speed = 0
+        self.steering = 0
+        self.brake = 0
+        self.current_y = 0
+        self.current_mode = 1
+    
+    def get_data(self):
+        '''
+        This will return the data currently contained inside an instance of the variables class
+        '''
+        data = [self.mode, self.direction, self.speed, self.steering,  self.brake]
+        print(data)
+        return data
+        
 
 def main():
     '''
-    This function is called when the user launch the executable file.
-    Ros2 will directly start the program here, according to the setup file.
+    This function create a client that will connect to a server.
+    Once connected, the client will sent the motion variables to the server.
+    The former will be able to handle those variables through a ROS2 node.
+    This script was designed due to the incompatibility between two ROS2 distro (foxy and dashing)
     '''
 
-    rclpy.init()
+    PORT = 4852
+    ADDRESS = "192.168.9.2"
 
-    mode = int(input("What is the required mode for the car?"))
+    var = variables()
 
-    can_input = CanInput(mode)
+    my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    try:
-        rclpy.spin(can_input)
-    except KeyboardInterrupt:
-        pass
+    my_socket.connect((ADDRESS,PORT))
 
-    # Destroy the node explicitly
-    # (optional - otherwise it will be done automatically
-    # when the garbage collector destroys the node object)
-    can_input.destroy_node()
-    rclpy.shutdown()
+    pygame.init()
 
-if __name__ == '__main__':
+    pygame.joystick.init()
+
+    joystick_count = pygame.joystick.get_count()
+    if joystick_count == 0:
+        print("No joysticks found.")
+
+    joystick = pygame.joystick.Joystick(0)
+
+    joystick.init()
+
+    while True :
+        
+        var.direction,var.speed, var.steering, var.brake, var.current_y, var.current_mode = joystick_input(joystick, var.direction, var.speed, var.steering, var.brake, var.current_y, var.current_mode)
+
+        my_socket.send(pickle.dumps(var.get_data()))
+        
+        print(var.get_data)
+
+        time.sleep(0.05)
+
+
+
+if __name__ == "__main__" :
     main()
