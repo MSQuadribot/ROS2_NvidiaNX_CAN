@@ -8,6 +8,11 @@ from interfaces.msg import CarControl
 
 
 def remote_input(server, direction,speed, steering, brake):
+    '''
+    This function will retreive the joystick input from a distant device using socket.
+    The joystick data are then used to update the car requested motion variables.
+    This function make use of pickle in order to turn the received message into a list.
+    '''
 
     msg = server.recv(1024)
     res = pickle.loads(msg)
@@ -68,23 +73,23 @@ def main():
 
     rclpy.init()
 
-    mode = int(input("What is the required mode for the car?"))
+    # mode = int(input("What is the required mode for the car?"))
 
     PORT = 4852
-    ADDRESS = "128.18.93.43"
+    ADDRESS = socket.gethostbyname("0.0.0.0")
 
     host = socket.gethostbyname(ADDRESS)
     print(host)
 
     my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    my_socket.bind(('', PORT))
+    my_socket.bind((ADDRESS, PORT))
 
     my_socket.listen()
 
     client, client_address = my_socket.accept()
 
-    can_input = CanInput(mode, client)
+    can_input = CanInput(8, client)
 
     try:
         rclpy.spin(can_input)
