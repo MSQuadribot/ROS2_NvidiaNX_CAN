@@ -29,6 +29,7 @@ setup(
             'joystick = canbot.can_joystick:main',
             'remote = canbot.can_remote:main',
             'input = canbot.can_input:main',
+            'test = canbot.can_test:main',
         ],
     },
 )

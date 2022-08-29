@@ -68,29 +68,11 @@ def joystick_input(joystick, direction,speed, steering, brake, current_y, curren
         if y < 0.05 and y > -0.05:
             steering = 0
         
-        elif y < 0.25 and y >= 0.05 :
-            steering = remap(y, 0.05, 0.25, mode[0], mode[1]+1)
+        elif y>=0:
+            steering = remap(y*y,-1,1,-37,38)
         
-        elif y < 0.5 and y >= 0.25:
-            steering = remap(y,0.25,0.5, mode[1], mode[2]+1)
-        
-        elif y < 0.75 and y >= 0.5 :
-            steering = remap(y,0.5,0.75,mode[2],mode[3]+1)
-        
-        elif y <= 1 and y >= .75 :
-            steering = remap(y,0.75,1, mode[3],mode[4]+1)
-
-        elif y <= -0.05 and y > -0.25:
-            steering = remap(y, -0.05, -0.25, mode[0], -mode[1])
-        
-        elif y <= -0.25 and y > -0.5:
-            steering = remap(y, -0.25, -0.5, -mode[1], -mode[2])
-        
-        elif y <= -0.5 and y > -0.75:
-            steering = remap(y,-0.5,-0.75,-mode[2],-mode[3])
-        
-        elif y <= -0.75 and y >= -1:
-            steering = remap(y, -0.75,-1,-mode[3],-mode[4])
+        elif y<0:
+            steering = remap(-y*y,-1,1,-37,38)
 
     # Update direction value according to speed value    
     if speed < -1:
