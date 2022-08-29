@@ -11,17 +11,27 @@ import subprocess
 class GetStatus(Node):
 
     def __init__(self):
-            super().__init__('get_status')
-            self.subscription = self.create_subscription(BusCan, 'can_data', self.listener_callback, 10)
-            self.subscription # prevent unused variable warning
+        '''
+        Create a Node that will retreives CAN bus data from the can_data topic.
+        The data are then used to compute car's status in a readable format.
+        Those information are then printed out and are easily accessible for the user.
+        '''
+        
+        super().__init__('get_status')
+        self.subscription = self.create_subscription(BusCan, 'can_data', self.listener_callback, 10)
+        self.subscription # prevent unused variable warning
 
-            self.angle = None
-            self.speed = None
-            self.brake = None
-            self.battery = None
-            self.error = None
+        self.angle = None
+        self.speed = None
+        self.brake = None
+        self.battery = None
+        self.error = None
         
     def listener_callback(self, msg):
+        '''
+        Retreive specific messages from the CAN bus in order to get precise data.
+        Then update the class' variables at all time.
+        '''
 
         subprocess.call("clear")
 
