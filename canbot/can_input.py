@@ -8,6 +8,7 @@ def remap(x, in_min, in_max, out_min, out_max):
     '''
     Small and simple function used to remap the data from to joystick to a desired format.
     '''
+    
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
 def joystick_input(joystick, direction,speed, steering, brake, current_y, current_mode):

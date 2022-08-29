@@ -48,7 +48,7 @@ The bus is updated every 20ms even if the speed and other element remain unchang
 Indeed, the car natively supports an "alive" counter that is incremented every 20ms.
 If the counter is not incremented, the car will stop.
 
-variables will use the can data provided by the reader and will send it to get the car variables.
+status will use the can data provided by the reader and will send it to get the car variables.
 This include speed, steering angle, battery status, and more.
 This node was designed with the precise requirement of the CAN bus provided by a specific car.
 
