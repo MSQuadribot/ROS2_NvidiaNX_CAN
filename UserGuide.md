@@ -70,3 +70,19 @@ $ ros2 run canbot controller
 Now, make sure that the key is in external position on the car.
 If it is, then you are ready to go and to drive the car with the joystick.
 
+### Getting car's situation
+
+Most of the time, it might be useful for the user to get information about physical element such as speed.
+It is possible to get thoses data from the CAN bus provided by the car, but they are not easily readed by a human.
+This package provide a Node that will display the car status in an understandable format.
+
+First, the user needs to open two new sourced terminals, one that will read the CAN, and one that will display the info.
+
+$ ros2 run canbot reader
+
+The launched node will read the can and print what is sent by the CAN bus and display it in a raw format.
+
+$ ros2 run canbot status
+
+This will print out the car status, it's speed, steering angle ... 
+It will be updated every time the reader received a new and useful CAN bus information.

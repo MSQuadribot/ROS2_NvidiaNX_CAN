@@ -6,9 +6,17 @@ from rclpy.node import Node
 from interfaces.msg import CarControl
 
 def remap(x, in_min, in_max, out_min, out_max):
+    '''
+    Small and simple function used to remap the data from to joystick to a desired format.
+    '''
+
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
 def joystick_input(joystick, direction,speed, steering, brake):
+    '''
+    This function allows the joystick input to directly influence the car's motion variables
+    It convert raw joystick input into user readable data that could then be used into a ROS2 Node
+    '''
 
     brake = 0
 
@@ -43,7 +51,7 @@ class CanInput(Node):
 
     def __init__(self, mode, joystick):
         '''
-        This will define the Node with both a publisher.
+        This will define the Node with a publisher.
         The goal is to send the data input from the keyboard to the controller Node.
         It has to send the data as fast as possible
         '''
